@@ -1,8 +1,6 @@
-var path = new Path();
-path.strokeColor = 'black';
+console.log("I AM IN UI");
 
-var myPath = new Path();
-
+var myPath;
 function onMouseDown(event){
 myPath = new Path();
 myPath.strokeColor ='black';
@@ -13,11 +11,21 @@ function onMouseDrag(event){
 myPath.add(event.point);
 }
 
-// add function for clicking
+/* MIDI BOARD INTEGRATION */
+var ctrl = new LaunchControl();
+var oldStrokeWidth = 0;
+var newStrokeWidth = 0;
 
-tool.onKeyDown = function(event){
-if (event.key =='1'){
-myPath.strokeWidth=7;  
-}
-// get this to change gradually as we press the up arrow
-}
+ctrl.open().then(function() {
+  ctrl.led("even", "dark red");
+});
+
+ctrl.on("message", function(e) {
+  if (e.dataType == "knob1" && e.track == 0){
+  	newStrokeWidth = e.value;
+  	if (newStrokeWidth > oldStrokeWidth) {myPath.strokeWidth+= Math.abs(newStrokeWidth - oldStrokeWidth)}
+  	else if (newStrokeWidth < oldStrokeWidth){myPath.strokeWidth-= Math.abs(newStrokeWidth - oldStrokeWidth)}
+  	oldStrokeWidth = newStrokeWidth;
+  	console.log(newStrokeWidth, oldStrokeWidth);
+  }
+});
